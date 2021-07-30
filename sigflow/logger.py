@@ -1,7 +1,7 @@
 import logging
 
 
-logger = logging.getLogger("mypythonlibrary")
+logger = logging.getLogger("sigflow")
 
 logger.setLevel(logging.DEBUG)
 

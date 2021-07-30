@@ -1,11 +1,12 @@
-"""My Python Library
-A template for creating new python library
+"""
+SigFlow Python Package
 
-Fetched from:
-A setuptools based setup module.
-See:
-https://packaging.python.org/guides/distributing-packages-using-setuptools/
-https://github.com/pypa/sampleproject
+SigFlow is a python package allows you design and run custom control
+topology in real-time with actual hardware.
+It provides classes for control block diagram elements, such as filters,
+junctions, and matrices.
+These elements can be inter-connected to form a custom control systems
+and it can be run at real-time if hardware interfaces is provided.
 """
 
 # Always prefer setuptools over distutils
@@ -26,20 +27,18 @@ MICRO = 0
 VERSION = '%d.%d.%d'%(MAJOR,MINOR,MICRO)
 
 setup(
-    name='mypythonlibrary',  # Required
+    name='sigflow',  # Required
     version=VERSION,  # Required
     description='A template for creating new python library',  # Optional
     long_description=long_description,  # Optional
     long_description_content_type='text/x-rst',  # Optional (see note above)
-    url='https://github.com/terrencetec/mypythonlibrary',  # Optional
+    url='https://github.com/terrencetec/sigflow',  # Optional
     author='TSANG Terrence Tak Lun',  # Optional
     author_email='terrencetec@gmail.com',  # Optional
     keywords='sample, setuptools, development',  # Optional
-    packages=find_packages(),
+    packages=find_packages(include=["sigflow", "sigflow.*"]),
     python_requires='>=3.5, <4',
-    install_requires=[
-        'numpy',
-    ], # Dependencies here, Optional
+    install_requires=[], # Dependencies here, Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
     # syntax, for example:
@@ -57,7 +56,7 @@ setup(
     # },
     entry_points={
         'console_scripts': [
-            'print-hello-worlds=mypythonlibrary.clitools.print_hello_worlds:main'
+            'print-hello-worlds=sigflow.clitools.print_hello_worlds:main'
         ],
     }
     # List additional URLs that are relevant to your project as a dict.

@@ -1,23 +1,27 @@
 |logo|
 
-*One-line description here!*
+*Construct real-time control systems using SigFlow*
 
 |website| |release| |rtd| |license| |travis-ci| |codecov|
 
-My Python Library
-=================
+SigFlow
+=======
 
-This is a template for creating new python library. Here are some descriptions!
+SigFlow is a python package allows you design and run custom control
+topology in real-time with actual hardware.
+It provides classes for control block diagram elements, such as filters,
+junctions, and matrices.
+These elements can be inter-connected to form a custom control systems
+and it can be run at real-time if hardware interfaces is provided.
 
 **features**
 
-* print Hello World!
-* print many Hello Worlds!
-* command line tools for printing a lot of Hello Worlds!
+* Design control systems with custom  topology by making custom block-dragrams.
+* Runs control systems in real-time with hardware interfaces.
 
-**Documentation**: https://mypythonlibrary.readthedocs.io
+**Documentation**: https://sigflow.readthedocs.io
 
-**Repository**: https://github.com/terrencetec/mypythonlibrary
+**Repository**: https://github.com/terrencetec/sigflow
 
 .. contents::
    :depth: 2
@@ -65,8 +69,8 @@ Install from source
 
 .. code:: bash
 
-   git clone https://github.com/terrencetec/mypythonlibrary.git
-   cd mypythonlibrary
+   git clone https://github.com/terrencetec/sigflow.git
+   cd sigflow
    pip install .
 
 How to Contribute
@@ -130,28 +134,28 @@ Open index.html with a browser (if this was set as the first page).
 
 .. |logo| image:: docs/source/_static/logo.svg
     :alt: Logo
-    :target: https://github.com/terrencetec/mypythonlibrary
+    :target: https://github.com/terrencetec/sigflow
 
-.. |website| image:: https://img.shields.io/badge/website-mypythonlibrary-blue.svg
+.. |website| image:: https://img.shields.io/badge/website-sigflow-blue.svg
     :alt: Website
-    :target: https://github.com/terrencetec/mypythonlibrary
+    :target: https://github.com/terrencetec/sigflow
 
-.. |release| image:: https://img.shields.io/github/v/release/terrencetec/mypythonlibrary?include_prereleases
+.. |release| image:: https://img.shields.io/github/v/release/terrencetec/sigflow?include_prereleases
    :alt: Release
-   :target: https://github.com/terrencetec/mypythonlibrary/releases
+   :target: https://github.com/terrencetec/sigflow/releases
 
-.. |rtd| image:: https://readthedocs.org/projects/mypythonlibrary/badge/?version=latest
+.. |rtd| image:: https://readthedocs.org/projects/sigflow/badge/?version=latest
    :alt: Read the Docs
-   :target: https://mypythonlibrary.readthedocs.io/
+   :target: https://sigflow.readthedocs.io/
 
-.. |license| image:: https://img.shields.io/github/license/terrencetec/mypythonlibrary
+.. |license| image:: https://img.shields.io/github/license/terrencetec/sigflow
     :alt: License
-    :target: https://github.com/terrencetec/mypythonlibrary/blob/master/LICENSE
+    :target: https://github.com/terrencetec/sigflow/blob/master/LICENSE
 
-.. |travis-ci| image:: https://travis-ci.com/terrencetec/mypythonlibrary.svg?branch=master
+.. |travis-ci| image:: https://travis-ci.com/terrencetec/sigflow.svg?branch=master
     :alt: travis-ci
-    :target: https://travis-ci.com/terrencetec/mypythonlibrary
+    :target: https://travis-ci.com/terrencetec/sigflow
 
-.. |codecov| image:: https://codecov.io/gh/terrencetec/mypythonlibrary/branch/master/graph/badge.svg?token=NMEBAYFE2N
+.. |codecov| image:: https://codecov.io/gh/terrencetec/sigflow/branch/master/graph/badge.svg?token=NMEBAYFE2N
     :alt: codecov
-    :target: https://codecov.io/gh/terrencetec/mypythonlibrary
+    :target: https://codecov.io/gh/terrencetec/sigflow

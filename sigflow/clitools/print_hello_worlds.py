@@ -9,7 +9,7 @@ def parser():
 
 def main(args=None):
 
-    from mypythonlibrary.helloworld import helloworlds
+    from sigflow.helloworld import helloworlds
 
     options = parser().parse_args(args)
 

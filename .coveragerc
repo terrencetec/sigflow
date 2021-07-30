@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = mypythonlibrary
+source = sigflow
 
 [report]
 exclude_lines =

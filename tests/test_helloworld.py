@@ -1,9 +1,9 @@
 """
 """
-import mypythonlibrary.helloworld
-import mypythonlibrary.clitools
+import sigflow.helloworld
+import sigflow.clitools
 
 
 def test_helloworld():
-    string = mypythonlibrary.helloworld.helloworlds(1)
+    string = sigflow.helloworld.helloworlds(1)
     assert string == 'Hello World!'
