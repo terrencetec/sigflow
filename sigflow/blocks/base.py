@@ -74,8 +74,7 @@ class Block:
 
     @property
     def input(self):
-        """Input of the block.
-        """
+        """Input of the block."""
         return self._input
 
     @input.setter
@@ -95,6 +94,25 @@ class Block:
 
     @property
     def output(self):
-        """Output of the block
-        """
+        """Output of the block"""
         return self._i2o()
+
+    @property
+    def ninput(self):
+        """Number of inputs"""
+        return self._ninput
+
+    @ninput.setter
+    def ninput(self, ninput):
+        """ninput setter"""
+        self._ninput = ninput
+
+    @property
+    def noutput(self):
+        """Number of inputs"""
+        return self._noutput
+
+    @noutput.setter
+    def noutput(self, noutput):
+        """noutput setter"""
+        self._noutput = noutput
