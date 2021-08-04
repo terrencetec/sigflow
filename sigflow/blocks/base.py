@@ -24,7 +24,8 @@ class Block:
 
     Call this block to use:
 
-    .. code::
+    .. code-block:: python
+
        output = block(input)
     """
     def __init__(self, label=None):

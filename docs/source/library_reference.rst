@@ -1,8 +1,8 @@
 Library Reference
 =================
 
-Blocks
-------
+Block
+-----
 
 .. autoclass:: sigflow.blocks.Block
    :members:
@@ -10,10 +10,28 @@ Blocks
    :show-inheritance:
 
 
-Block123
+Filter
+------
+
+.. autoclass:: sigflow.blocks.Filter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Junction
 --------
 
-.. autoclass:: sigflow.blocks.base.Block
+.. autoclass:: sigflow.blocks.Junction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Matrix
+------
+
+.. autoclass:: sigflow.blocks.Matrix
    :members:
    :undoc-members:
    :show-inheritance:
