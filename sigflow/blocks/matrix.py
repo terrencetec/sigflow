@@ -18,4 +18,8 @@ class Matrix(Block):
             Defaults to None.
         """
         super().__init__(label=label)
-        self.matrix = matrix
+        self.matrix = np.array(matrix)
+        if len(self.matrix.shape) != 2:
+            raise ValueError("matrix must be a 2-D array.")
+        self.ninput, self.noutput = self.matrix.shape
+        self.n

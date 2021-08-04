@@ -1,10 +1,19 @@
 Library Reference
 =================
 
-hello world
------------
+Blocks
+------
 
-.. automodule:: sigflow.helloworld.helloworld
+.. autoclass:: sigflow.blocks.Block
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Block123
+--------
+
+.. autoclass:: sigflow.blocks.base.Block
    :members:
    :undoc-members:
    :show-inheritance:

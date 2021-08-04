@@ -3,23 +3,43 @@
 class Block:
     """A general block base class
 
+    Attributes
+    ----------
+    label : str or None
+        Label for this block.
+    input : float or array
+        The input of this block.
+    output : float or array
+        The output of this block, calculated by self._i2o()
+    ninput : int
+        The number of inputs
+    noutput : int
+        The number of outputs
+
     Note
     ----
-    Block diagram representation
+    Block diagram representation:
 
     input --> [block] --> output
+
+    Call this block to use:
+
+    .. code::
+       output = block(input)
     """
     def __init__(self, label=None):
         """Constructor
 
         Parameters
         ----------
-        label : str, optional
+        label : str or None, optional
             Label for this block.
             Defaults to None
         """
         self.label = label
-        self.input = 0
+        self.input = 0.
+        self.ninput = 1
+        self.noutput = 1
 
     def __call__(self, input):
         """Call method
