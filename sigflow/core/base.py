@@ -5,7 +5,7 @@ class System:
 
     Attributes
     ----------
-    
+
     """
     def __init__(self, blocks):
         """Constructor.
@@ -17,7 +17,14 @@ class System:
         """
         self.blocks = _blocks
 
-    
+    def __str__(self):
+        """Description of the system in string."""
+        seq = ["ID\tType\tLabel"]
+        for i, block in enumerate(self.blocks):
+            tmp = "\t".join(i, block.__class__.__name__, block.label)
+            seq.append(tmp)
+        return "\n".join(seq)
+
     @property
     def blocks(self):
         """blocks in the system."""
