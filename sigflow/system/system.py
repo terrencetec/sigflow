@@ -8,7 +8,7 @@ class System:
     ----------
 
     """
-    def __init__(self, blocks):
+    def __init__(self, blocks, fs):
         """Constructor.
 
         Parameters
@@ -17,11 +17,50 @@ class System:
             The block to be included in the system.
         """
         self.blocks = blocks
-        self._succ = {}.fromkeys(self.blocks)
-        self._pred = {}.fromkeys(self.blocks)
-        for block in self.blocks:
-            self._succ[block] = {}.fromkeys(range(block.noutput), {})
-            self._pred[block] = {}.fromkeys(range(block.ninput), {})
+        self.fs = fs
+        self._inout = False # indicate if find_inout is run.
+        self._succ = {}.fromkeys(self.blocks, {})
+        self._pred = {}.fromkeys(self.blocks, {})
+
+    def add_blocks(self, blocks):
+        """Add blocks to the system
+
+        Parameters
+        ----------
+        blocks : Block or list of Block
+            The block to add in the system.
+        """
+        if isinstance(blocks, list):
+            self.blocks += blocks
+            for blk in blocks:
+                self._succ.update({blk: {}})
+                self._pred.update({blk: {}})
+        elif isinstance(blocks, Block):
+            self.blocks.append(blocks)
+            self._succ.update({blocks: {}})
+            self._pred.update({blocks: {}})
+        else:
+            raise TypeError("blocks must be of type Block or list, not %s"%
+                            type(blocks).__name__)
+
+    def remove_blocks(self, blocks):
+        """Remove blocks from the system.
+
+        Parameters
+        ----------
+        blocks : Block or list of Block
+            Blocks to remove from the system.
+        """
+        if not isinstance(blocks, list):
+            blocks = [blocks]
+        for delete in blocks:
+            for dictionary in [self._succ, self._pred]:
+                del dictionary[delete]
+                for key in dictionary:
+                    if delete in dictionary[key]:
+                        del dictionary[key][delete]
+        self._inout = False
+
 
     def add_edge(self, edge_from, edge_to, from_port=0, to_port=0):
         """Add a directed connection from block out_edge to in_edge.
@@ -47,39 +86,42 @@ class System:
         if edge_to not in self.blocks:
             raise ValueError("edge_to not in system's blocks")
 
-        # adding edge
-        self._succ[edge_from][from_port].update({edge_to: to_port})
-        self._pred[edge_to][to_port].update({edge_from: from_port})
+        # add edge
+        if edge_to in self._succ[edge_from]:
+            self._succ[edge_from][edge_to].update({from_port: to_port})
+        else:
+            self._succ[edge_from].update({edge_to: {from_port: to_port}})
 
+        if edge_from in self._pred[edge_to]:
+            self._pred[edge_to][edge_from].update({from_port: to_port})
+        else:
+            self._pred[edge_to].update({edge_from: {from_port: to_port}})
+        self._inout = False
 
     def remove_edge(self, edge_from, edge_to, from_port=0, to_port=0):
-        self._succ[edge_from][from_port].pop(edge_to)
-        self._pred[edge_to][to_port].pop(edge_from)
+        del self._succ[edge_from][edge_to][from_port]
+        del self._pred[edge_to][edge_from][from_port]
+        self._inout = False
 
     def clear_edges(self):
         """Clear all the connections in the system."""
-        self._succ = {}.fromkeys(self.blocks)
-        self._pred = {}.fromkeys(self.blocks)
-        for block in self.blocks:
-            self._succ[block] = {}.fromkeys(range(block.noutput), {})
-            self._pred[block] = {}.fromkeys(range(block.ninput), {})
+        self._succ = {}.fromkeys(self.blocks, {})
+        self._pred = {}.fromkeys(self.blocks, {})
+        self._inout = False
 
-    def find_inout(self):
+    def _find_inout(self):
         # find ending blocks
-        starting_blocks = []
-        ending_blocks = []
-        for stat, table in zip([starting_blocks, ending_blocks],
-                               [self._pred, self._succ]):
-            for block in table:
-                count = True
-                for key, value in table[block].items():
-                   if len(value) > 0:
-                       count = False
-                       break
-                if count:
-                    stat.append(block)
-        self.inputs = starting_blocks
-        self.outputs = ending_blocks
+        if self._inout is False:
+            starting_blocks = []
+            ending_blocks = []
+            for stat, table in zip([starting_blocks, ending_blocks],
+                                   [self._pred, self._succ]):
+                for block in table:
+                    if len(table[block]) == 0:
+                        stat.append(block)
+            self.inputs = starting_blocks
+            self.outputs = ending_blocks
+            self._inout = True
 
     def __call__(self, inputs):
         """Traverse the system once.
@@ -92,7 +134,8 @@ class System:
         """
         for block in inputs:
             block.inputs = inputs[block]
-        self.find_inout()
+
+        self._find_inout()
         visited = {}.fromkeys(self.blocks, False)
         # block waiting to process in breadth first search method,
         # may have duplicates
@@ -118,17 +161,18 @@ class System:
 
                 # a nested dict of target blocks
                 table = self._succ[current_block]
-                for port in table:
-                    for target in table[port]:
-                        queue.append(target)    # add blocks to be run
-                        if target not in pending:
-                            pending.update({target: [0]*target.ninput})
+                for target in table:
+                    queue.append(target)    # add blocks to be run
+                    if target not in pending:
+                        pending.update({target: [0]*target.ninput})
 
+                    for from_port in table[target]:
+                        to = table[target][from_port]
                         if current_block.noutput > 1:
-                            pending[target][port] = tmp_output[port]
+                            pending[target][to] = tmp_output[from_port]
                         else:
-                            pending[target][port] = tmp_output
-        return [(block.label, block.output) for block in self.outputs]
+                            pending[target][to] = tmp_output
+        return [block.output for block in self.outputs]
 
     def __str__(self):
         """Description of the system in string."""
@@ -147,6 +191,8 @@ class System:
     @blocks.setter
     def blocks(self, blocks):
         """block setter."""
+        if blocks is None:
+            self._blocks = None
         if isinstance(blocks, Block):
             blocks = list(blocks)
         if isinstance(blocks, list):
