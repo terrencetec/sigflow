@@ -49,14 +49,14 @@ class Matrix(Block):
         Returns
         -------
         array
-            Matrix multiplication of self.matrix and self.input
-            self.matrix @ self.input
+            Matrix multiplication of self.matrix and self.inputs
+            self.matrix @ self.inputs
         """
-        if len(self.input) != self.ninput:
+        if len(self.inputs) != self.ninput:
             raise ValueError("Number of inputs:{} doesn't match"
                              " that of the matrix:{}"
-                             "".format(len(self.input), self.ninput))
-        return self.matrix @ self.input
+                             "".format(len(self.inputs), self.ninput))
+        return self.matrix @ self.inputs
 
     @property
     def ninput(self):

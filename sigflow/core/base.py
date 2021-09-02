@@ -1,4 +1,3 @@
-from sigflow import Block
 
 class System:
     """A generic system class that connect blocks.
@@ -15,7 +14,23 @@ class System:
         blocks : Block or list of Block.
             The block to be included in the system.
         """
-        self.blocks = _blocks
+        self.blocks = blocks
+
+    def add_edge(self, u, v, portu=0, portv=0):
+        """Add a directed edge to the system's graph from node u's portu to
+        node v's portv.
+
+        Parameters
+        """
+        # 
+
+        self._succ[u] = {portu: (v, portv)}
+        self._pred[v] = {portv: (u, portu)}
+
+
+    def clear_edges(self):
+        """Clear all the connections in the system."""
+        self.edge_table.clear()
 
     def __str__(self):
         """Description of the system in string."""
@@ -33,11 +48,11 @@ class System:
     @blocks.setter
     def blocks(self, blocks):
         """block setter."""
+        if isinstance(blocks, Block):
+            blocks = list(blocks)
         if isinstance(blocks, list):
             _blocks = [block for block in blocks if isinstance(block, Block)]
             if len(blocks) != len(_blocks):
                 raise TypeError("blocks must be a list of Block objects")
-        elif not isinstance(blocks, Block):
-            raise TypeError("blocks must be of Block object")
-        self._blocks = blocks
+            self._blocks = blocks
 
