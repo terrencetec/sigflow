@@ -19,17 +19,17 @@ def test_junction():
 
     signs = "+--+"
     junction = sigflow.blocks.junction.Junction(signs, label="test")
-    input = np.array([1, 2, 3])
-    ## Catch exception when input size is not equal to that of no. of rows.
+    inputs = np.array([1, 2, 3])
+    ## Catch exception when inputs size is not equal to that of no. of rows.
     try:
-        junction(input)
+        junction(inputs)
         print("Exception not catched")
         raise
     except ValueError:
         pass
 
-    ## test input-output relationship
-    input = np.random.random(4)
-    correct_output = np.array([input[0] - input[1] - input[2] + input[3]])
-    output = junction(input)
+    ## test inputs-output relationship
+    inputs = np.random.random(4)
+    correct_output = np.array([inputs[0] - inputs[1] - inputs[2] + inputs[3]])
+    output = junction(inputs)
     assert np.array_equal(output, correct_output)
