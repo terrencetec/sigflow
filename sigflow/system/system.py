@@ -45,10 +45,10 @@ class System:
             id_start = last_id + 1
         blocks = to_list(blocks, types=Block)
         new_ids = range(id_start, id_start+len(blocks))
-        self.blocks |= dict(zip(new_ids, blocks))
-        self._ids |= dict(zip(blocks, new_ids))
-        self._succ |= dict(zip(new_ids, [{}]*len(new_ids)))
-        self._pred |= dict(zip(new_ids, [{}]*len(new_ids)))
+        self.blocks = {**self.blocks, **dict(zip(new_ids, blocks))}
+        self._ids = {**self._ids, **dict(zip(blocks, new_ids))}
+        self._succ = {**self._succ, **dict(zip(new_ids, [{}]*len(new_ids)))}
+        self._pred = {**self._pred, ** dict(zip(new_ids, [{}]*len(new_ids)))}
 
 
     def add_edge(self, edge_from, edge_to, from_port=0, to_port=0):
@@ -293,7 +293,5 @@ class System:
         else:
             raise TypeError("blocks must be of type dict, not %s"\
                              % type(blocks).__name__)
-
-
 
 
