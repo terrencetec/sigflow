@@ -15,9 +15,10 @@ def to_list(value, types=None):
     Returns
     -------
     list
+        value converted as list of values
     """
     if isinstance(value, np.ndarray):
-        value = value.to_list()
+        value = value.tolist()
     try:
         iter(value)
     except TypeError:
@@ -32,7 +33,6 @@ def to_list(value, types=None):
                 raise TypeError("expected value's type %s\nactual type %s"
                                 % str(types),  str(value.__class__.__name__))
     return value
-
 
 
 

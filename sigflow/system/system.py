@@ -2,18 +2,15 @@ from sigflow.blocks import Block
 from sigflow.core.utils import to_list
 
 
-class System:
+class System(Block):
     """A generic system class that connect blocks.
 
     Attributes
     ----------
     blocks : list of Block objects
         System's blocks which connect to each other.
-    fs : int or float
-        Sampling frequency of the system.
-        For z-transform usage.
     """
-    def __init__(self, blocks=None):
+    def __init__(self, blocks=None, nin=0, nout=0):
         """Constructor.
 
         Parameters
@@ -23,12 +20,100 @@ class System:
         """
         if blocks is None:
             blocks = []
+
+        ## node table
+        blocks = to_list(blocks, Block)
         ids = range(len(blocks))
         self.blocks = dict(enumerate(blocks))
         self._ids = dict(zip(blocks, ids))
-        self._inout = False # indicate if find_inout is run.
-        self._succ = {}.fromkeys(ids, {})
-        self._pred = {}.fromkeys(ids, {})
+
+        ## adjacency list
+        out_ports = [[{}]*block.noutput for block in blocks]
+        self._succ = dict(zip(ids, out_ports))
+
+        self._set = False # indicate if starting block is set.
+        in_ports = [[0.]*block.ninput for block in blocks]
+        self._pending = dict(zip(ids, in_ports))
+        self.set_ninout(nin, nout)
+
+    def set_ninout(self, ninput, noutput=0):
+        """Set the input and output blocks of the system.
+        System then behaves like a block, with definite input and output.
+
+        Parameters
+        ----------
+        ninput : int
+            number of input port of the system.
+        output_blocks : int, optional
+            number of output port of the system.
+            Defaults to 0.
+        """
+        self.ninput = ninput
+        self.noutput = noutput
+        if ninput > 0:
+            self._succ = {**self._succ, **{"input": [{}]*ninput}}
+        if noutput > 0:
+            self._pending = {**self._pending, **{"output": [{}]*noutput}}
+        self._set = True
+
+    def _i2o(self):
+        """Method to convert the input signal to an output signal.
+
+        Returns
+        -------
+        list
+        """
+        if not self._set:
+            raise ValueError("self.input_blocks is not set."
+                             "Set it by using self.set_blocks method.")
+        ## for short hand
+        inputs = self.inputs
+        pending = self._pending
+
+        visited = {}.fromkeys(self.blocks.keys(), False)
+        ## block waiting to process in breadth first search method,
+        ## may have duplicates
+        queue = []
+        for from_port in range(self.ninput):
+            for target_id, to_port in self._succ["input"][from_port].items():
+                queue.append(target_id)    # add blocks to be run
+                pending[target_id][to_port] = self.inputs[from_port]
+
+        ## reset to block input=list of zero if block mutated
+        # for ids, data in pending.items():
+        #     length = self.blocks[ids].ninput
+        #     if len(data) != length:
+        #         pending[ids] = [0.]*length
+
+        while len(queue):
+            current_id = queue.pop(0)
+            if visited[current_id]:
+                continue
+
+            visited[current_id] = True
+            current_block = self.blocks[current_id]
+
+            ## setting predessors output as successor's input
+            # if current_block not in start_blocks:
+            if current_block.ninput > 1:
+                current_block.inputs = pending[current_id]
+            else:
+                current_block.inputs = pending[current_id][0]
+            ## process input to output
+            tmp_output = current_block.output
+
+            ports = self._succ[current_id] # nested dict of target blocks
+            for from_port in range(len(ports)):
+                ## caching data
+                for target_id, to_port in ports[from_port].items():
+                    if target_id != "output":
+                        queue.append(target_id)    # add blocks to be run
+                    pending[target_id][to_port] = tmp_output[from_port]
+        if self.noutput > 0:
+            res = pending["output"]
+        else:
+            res = None
+        return res
 
     def add_blocks(self, blocks):
         """Add blocks to the system
@@ -45,40 +130,39 @@ class System:
             id_start = last_id + 1
         blocks = to_list(blocks, types=Block)
         new_ids = range(id_start, id_start+len(blocks))
-        self.blocks |= dict(zip(new_ids, blocks))
-        self._ids |= dict(zip(blocks, new_ids))
-        self._succ |= dict(zip(new_ids, [{}]*len(new_ids)))
-        self._pred |= dict(zip(new_ids, [{}]*len(new_ids)))
-
+        out_ports = [[{}]*block.noutput for block in blocks]
+        self.blocks = {**self.blocks,
+                       **dict(zip(new_ids, blocks))}
+        self._ids = {**self._ids,
+                     **dict(zip(blocks, new_ids))}
+        self._succ = {**self._succ,
+                      **dict(zip(new_ids, out_ports))}
+        in_ports = [[0.]*block.ninput for block in blocks]
+        self._pending = {**self._pending,
+                         **dict(zip(new_ids, in_ports))}
 
     def add_edge(self, edge_from, edge_to, from_port=0, to_port=0):
         """Add a directed connection from block out_edge to in_edge.
 
         Parameters
         ----------
-        edge_from : Block or block_id
+        edge_from : Block object, block_id, or 'input'
             The block to connect from.
-        edge_to : Block or block_id
+            'input' indicates system's input.
+        edge_to : Block object, block_id, or 'output'
             The block to connect to.
+            'output' indicates system's output
         from_port : int, optional
             The output port to connect from.
-            out_port must be smaller tha noutput of the block.
+            out_port must be smaller than noutput of the block.
             Defaults to 0.
         to_port : int, optional
             The input port to connect from.
-            in_port must be smaller tha ninput of the block.
+            in_port must be smaller than ninput of the block.
             Defaults to 0.
         """
-        # error check, need to add
-        edge_from_exist = (edge_from in self.blocks.values()
-                           or edge_from in self.blocks)
-        edge_to_exist = (edge_to in self.blocks.values()
-                         or edge_to in self.blocks)
-        if not edge_from_exist:
-            raise ValueError("edge_from not in system's blocks")
-        if not edge_to_exist:
-            raise ValueError("edge_to not in system's blocks")
-
+        self._check_block_exists(edge_from)
+        self._check_block_exists(edge_to)
         if isinstance(edge_from, Block):
             from_id = self._ids[edge_from]
         else:
@@ -88,17 +172,25 @@ class System:
         else:
             to_id = edge_to
 
-        # add edge
-        if to_id in self._succ[from_id]:
-            self._succ[from_id][to_id].update({from_port: to_port})
+        ## check valid port
+        if from_id == "input":
+            nport = self.ninput
         else:
-            self._succ[from_id] = {to_id: {from_port: to_port}}
+            nport = self.blocks[from_id].ninput
+        if from_port >= nport:
+            raise ValueError("invalid from port {} for id:{}"
+                             "".format(from_port, from_id))
+        if to_id == "output":
+            nport = self.noutput
+        else:
+            nport = self.blocks[to_id].ninput
+        if to_port >= nport:
+            raise ValueError("invalid to port {} for id:{}"
+                             "".format(from_port, to_id))
 
-        if from_id in self._pred[to_id]:
-            self._pred[to_id][from_id].update({from_port: to_port})
-        else:
-            self._pred[to_id] = {from_id: {from_port: to_port}}
-        self._inout = False
+        ## add edge
+        target_dict = self._succ[from_id][from_port]
+        self._succ[from_id][from_port] = {**target_dict, **{to_id: to_port}}
 
     def remove_edge(self, edge_from, edge_to, from_port=0, to_port=0):
         """Remove the given edge from the system.
@@ -126,16 +218,12 @@ class System:
             to_id = self._ids[edge_to]
         else:
             to_id = edge_to
-        del self._succ[from_id][to_id][from_port]
-        del self._pred[to_id][from_id][from_port]
-        self._inout = False
+        del self._succ[from_id][from_port][to_id]
 
     def clear_edges(self):
         """Clear all the connections in the system."""
-        ids = range(len(self.blocks))
-        self._succ = {}.fromkeys(ids, {})
-        self._pred = {}.fromkeys(ids, {})
-        self._inout = False
+        succ = [(i, [{}]*block.noutput) for i, block in self.blocks.items()]
+        self._succ = dict(succ)
 
     def remove_blocks(self, blocks):
         """Remove blocks from the system.
@@ -147,18 +235,9 @@ class System:
         """
         blocks = to_list(blocks, types=Block)
         for delete in blocks:
-            try:
-                del_id = self._ids.pop(delete)
-            except KeyError:
-                raise ValueError("block not in the system")
-
-            del self.blocks[del_id]
-            for dictionary in [self._succ, self._pred]:
-                del dictionary[del_id]
-                for key in dictionary:
-                    if del_id in dictionary[key]:
-                        del dictionary[key][del_id]
-        self._inout = False
+            self._check_block_exists(delete)
+            del_id = self._ids[delete]
+            self._remove_block(del_id)
 
     def remove_by_id(self, block_id):
         """Remove blocks from the system.
@@ -170,108 +249,58 @@ class System:
         """
         blocks_id = to_list(block_id, int)
         for del_id in blocks_id:
-            delete = self.blocks.pop(del_id)
-            del self._ids[delete]
-            for dictionary in [self._succ, self._pred]:
-                del dictionary[del_id]
-                for key in dictionary:
-                    if del_id in dictionary[key]:
+            self._check_block_exists(del_id)
+            self._remove_block(del_id)
+
+    def _remove_block(self, del_id):
+        delete = self.blocks.pop(del_id)
+        del self._ids[delete]
+        del self._pending[del_id]
+
+        for dictionary in [self._succ]:
+            del dictionary[del_id]
+            for key in dictionary:
+                for port in range(len(dictionary[key])):
+                    if del_id in dictionary[key][port]:
                         del dictionary[key][del_id]
-        self._inout = False
 
-    def _find_inout(self):
-        # find ending blocks
-        if self._inout is False:
-            starting_blocks = []
-            ending_blocks = []
-            for stat, table in zip([starting_blocks, ending_blocks],
-                                   [self._pred, self._succ]):
-                for block_id in table:
-                    if len(table[block_id]) == 0:
-                        stat.append(block_id)
-            self.inputs = starting_blocks
-            self.outputs = ending_blocks
-            self._inout = True
-
-    def __call__(self, inputs):
-        """Traverse the system once.
+    def _check_block_exists(self, block):
+        """An internal method to check if block is in the system.
 
         Parameters
         ----------
-        inputs : dict
-            Block objects as keys,
-            float, int or array as value for system inputs.
+        block : Block objects, or block_id
         """
-        if not isinstance(inputs, dict):
-            raise TypeError("inputs must be a dict, not %s"\
-                            % type(inputs).__name__)
-        for key in inputs:
-            if isinstance(key, Block):
-                try:
-                    block_id = self._ids[key]
-                except KeyError:
-                    raise ValueError(key, "doesn't exist in the system")
-                self.blocks[block_id].inputs = inputs[key]
-            if isinstance(key, int):
-                try:
-                    self.blocks[key].inputs = inputs[key]
-                except KeyError:
-                    raise ValueError("ID %d doesn't exist in the system"%key)
+        if isinstance(block, Block):
+            if block not in self._ids:
+                raise LookupError("{} doesn't exist in the system"
+                                  "".format(block))
+        elif isinstance(block, int):
+            if block not in self.blocks:
+                raise LookupError("ID {:d} doesn't exist in the system"
+                                  "".format(block))
+        elif block != "input" and block != "output":
+            print(block)
+            raise TypeError("wrong type to call block")
 
-        self._find_inout()
-        visited = {}.fromkeys(self.blocks.keys(), False)
-        # block waiting to process in breadth first search method,
-        # may have duplicates
-        queue = [block_id for block_id in self.inputs]
-
-        # pending output data to be set with inputs
-        pending = {}
-
-        while len(queue):
-            current_id = queue.pop(0)
-            if visited[current_id] is False:
-                visited[current_id] = True
-                current_block = self.blocks[current_id]
-                # setting predessors output as successor's input
-                if current_id in pending:
-                    if current_block.ninput > 1:
-                        current_block.inputs = pending[current_id]
-                    else:
-                        current_block.inputs = pending[current_id][0]
-
-                # process input to output
-                tmp_output = current_block.output
-
-                # a nested dict of target blocks
-                table = self._succ[current_id]
-                for target_id in table:
-                    queue.append(target_id)    # add blocks to be run
-                    if target_id not in pending:
-                        n = self.blocks[target_id].ninput
-                        pending.update({target_id: [0]*n})
-
-                    for from_port in table[target_id]:
-                        to = table[target_id][from_port]
-                        if current_block.noutput > 1:
-                            pending[target_id][to] = tmp_output[from_port]
-                        else:
-                            pending[target][to] = tmp_output
-        values = [self.blocks[block_id].output for block_id in self.outputs]
-        res = dict(zip(self.outputs, values))
-        return res
+    def connections(self):
+        """Connections of blocks in the system."""
+        seq = ["Connections:"]
+        seq.append("from_id\tfrom_port\tto_id\tto_port")
+        seq.append(str(self._succ))
+        return "\n".join(seq)
 
     def __str__(self):
         """Description of the system in string."""
         seq = ["{:<6s} {:<14s} {:s}".format("ID", "type", "label")]
         for i, block in self.blocks.items():
-            tmp = "{:<6s} {:<14s} {:s}".format(i,
+            tmp = "{:<6d} {:<14s} {:s}".format(i,
                                                block.__class__.__name__,
                                                str(block.label))
             seq.append(tmp)
-        seq.append("\nConnections:")
-        seq.append("from_id\tto_id\tfrom_port\tto_port")
-        seq.append(str(self._succ))
-        return "\n".join(seq)
+        seq = "\n".join(seq)
+        seq += "\n" + self.connections()
+        return seq
 
     @property
     def blocks(self):
@@ -293,7 +322,18 @@ class System:
         else:
             raise TypeError("blocks must be of type dict, not %s"\
                              % type(blocks).__name__)
+    @property
+    def inputs(self):
+        return self._inputs
 
-
-
-
+    @inputs.setter
+    def inputs(self, values):
+        """inputs setter"""
+        values = to_list(values, (int, float))
+        if len(values) != self.ninput:
+            raise ValueError("expected input size of {} in axis 0, "
+                             "got {} instead".format(self.ninput, len(values)))
+        # if not isinstance(values, dict):
+        #     raise TypeError("inputs must be a dict, not %s"\
+        #                     % type(values).__name__)
+        self._inputs = values

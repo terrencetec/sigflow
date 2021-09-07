@@ -97,6 +97,6 @@ class Matrix(Block):
         """
         if mat is None:
             pass
-        elif len(mat.shape) != 2:
+        elif mat.ndim != 2:
             raise ValueError("matrix must be a 2-D array.")
         self._matrix = mat

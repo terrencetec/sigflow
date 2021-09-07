@@ -1,3 +1,5 @@
+import numpy as np
+
 """Elements in a block diagram
 """
 class Block:
