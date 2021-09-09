@@ -130,3 +130,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# vim undo file
+.*.un~
+.*.sw?

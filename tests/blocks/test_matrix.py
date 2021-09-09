@@ -26,17 +26,17 @@ def test_matrix():
 
     a = np.random.random((2, 3))
     matrix = sigflow.blocks.matrix.Matrix(a, label="test")
-    input = np.array([1])
-    ## Catch exception when input size is not equal to that of no. of rows.
+    inputs = np.array([1])
+    ## Catch exception when inputs size is not equal to that of no. of rows.
     try:
-        matrix(input)
+        matrix(inputs)
         print("Exception not catched")
         raise
     except ValueError:
         pass
 
-    ## test input-output relationship
-    input = np.random.random(3)
-    correct_output = a @ input
-    output = matrix(input)
+    ## test inputs-output relationship
+    inputs = np.random.random(3)
+    correct_output = a @ inputs
+    output = matrix(inputs)
     assert np.array_equal(output, correct_output)
