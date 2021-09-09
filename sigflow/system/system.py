@@ -1,6 +1,7 @@
-from sigflow.blocks import Block
-from sigflow.core.utils import to_list
+import numpy as np
 
+from sigflow.blocks import Block
+from sigflow.core.utils import to_array
 
 class System(Block):
     """A generic system class that connect blocks.
@@ -22,7 +23,7 @@ class System(Block):
             blocks = []
 
         ## node table
-        blocks = to_list(blocks, Block)
+        blocks = to_array(blocks, Block)
         ids = range(len(blocks))
         self.blocks = dict(enumerate(blocks))
         self._ids = dict(zip(blocks, ids))
@@ -69,7 +70,6 @@ class System(Block):
         ## for short hand
         inputs = self.inputs
         pending = self._pending
-
         visited = {}.fromkeys(self.blocks.keys(), False)
         ## block waiting to process in breadth first search method,
         ## may have duplicates
@@ -80,10 +80,11 @@ class System(Block):
                 pending[target_id][to_port] = self.inputs[from_port]
 
         ## reset to block input=list of zero if block mutated
-        # for ids, data in pending.items():
-        #     length = self.blocks[ids].ninput
-        #     if len(data) != length:
-        #         pending[ids] = [0.]*length
+        for ids, data in pending.items():
+            if ids != "input" and ids != "output":
+                length = self.blocks[ids].ninput
+                if len(data) != length:
+                    pending[ids] = [0.]*length
 
         while len(queue):
             current_id = queue.pop(0)
@@ -94,8 +95,10 @@ class System(Block):
             current_block = self.blocks[current_id]
 
             ## setting predessors output as successor's input
-            # if current_block not in start_blocks:
             if current_block.ninput > 1:
+                ## setting each element of the input as the same size
+                tmp = np.broadcast(*pending[current_id])
+                pending[current_id] = np.column_stack(tuple(tmp))
                 current_block.inputs = pending[current_id]
             else:
                 current_block.inputs = pending[current_id][0]
@@ -128,7 +131,7 @@ class System(Block):
         else:
             last_id = max(self.blocks)
             id_start = last_id + 1
-        blocks = to_list(blocks, types=Block)
+        blocks = to_array(blocks, types=Block)
         new_ids = range(id_start, id_start+len(blocks))
         out_ports = [[{}]*block.noutput for block in blocks]
         self.blocks = {**self.blocks,
@@ -233,7 +236,7 @@ class System(Block):
         blocks : Block or list of Block
             Blocks to remove from the system.
         """
-        blocks = to_list(blocks, types=Block)
+        blocks = to_array(blocks, types=Block)
         for delete in blocks:
             self._check_block_exists(delete)
             del_id = self._ids[delete]
@@ -247,7 +250,7 @@ class System(Block):
         block_id : int or list of int
             ID of the blocks to remove from the system.
         """
-        blocks_id = to_list(block_id, int)
+        blocks_id = to_array(block_id, np.integer)
         for del_id in blocks_id:
             self._check_block_exists(del_id)
             self._remove_block(del_id)
@@ -275,7 +278,7 @@ class System(Block):
             if block not in self._ids:
                 raise LookupError("{} doesn't exist in the system"
                                   "".format(block))
-        elif isinstance(block, int):
+        elif isinstance(block, (int, np.integer)):
             if block not in self.blocks:
                 raise LookupError("ID {:d} doesn't exist in the system"
                                   "".format(block))
@@ -329,11 +332,9 @@ class System(Block):
     @inputs.setter
     def inputs(self, values):
         """inputs setter"""
-        values = to_list(values, (int, float))
+        values = to_array(values, (np.integer, np.floating, np.ndarray))
+        # print("inputs :", values)
         if len(values) != self.ninput:
             raise ValueError("expected input size of {} in axis 0, "
                              "got {} instead".format(self.ninput, len(values)))
-        # if not isinstance(values, dict):
-        #     raise TypeError("inputs must be a dict, not %s"\
-        #                     % type(values).__name__)
         self._inputs = values

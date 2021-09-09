@@ -154,7 +154,10 @@ def test_system():
     np.testing.assert_allclose(actual, expected)
 
 
-def test_feedback():
+@pytest.mark.parametrize("data, expected",
+                         [[1, [1,0]],
+                          [[np.ones(3)], [np.ones(3), np.zeros(3)]]])
+def test_feedback(data, expected):
     block = sigflow.Junction("+-")
     sys = sigflow.System(block, nin=1, nout=1)
     sys.add_edge("input", block)
@@ -162,9 +165,9 @@ def test_feedback():
     sys.add_edge(block, "output")
     res = []
     for _ in range(2):
-        res.append(sys(1)[0])
-        print(res)
-    assert res == [1.0, 0.0]
+        print("data: ", data)
+        res.append(sys(data)[0])
+    np.testing.assert_equal(res, expected)
 
 # def test_str(two_blocks_system):
 #     sys = two_blocks_system
