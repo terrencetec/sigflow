@@ -30,9 +30,9 @@ class Filter(Block):
 
     Note
     ----
-    When ``input.setter`` the current input and output is saved into a register
+    When ``inputs.setter`` the current input and output is saved into a register
     for next cycle.
-    This means that calling ``input.setter`` indicates the end of a cycle.
+    This means that calling ``inputs.setter`` indicates the end of a cycle.
     """
     def __init__(self, tf, fs, method="bilinear", label=None):
         """Constructor
@@ -75,15 +75,15 @@ class Filter(Block):
         return out
 
     @property
-    def input(self):
+    def inputs(self):
         """Input of the block."""
-        return self._input
+        return self._inputs
 
-    @input.setter
-    def input(self, _input):
+    @inputs.setter
+    def inputs(self, _inputs):
         """input.setter"""
         self._latch_output_register()
-        self._input = _input
+        self._inputs = _inputs
         self._latch_input_register()
 
     @property
@@ -199,7 +199,7 @@ class Filter(Block):
         """
         if self.input_register is not None:
             self.input_register[1:] = self.input_register[:-1]
-            self.input_register[0] = self.input
+            self.input_register[0] = self.inputs
 
     def _latch_output_register(self):
         """Shift and then put input value into input register
