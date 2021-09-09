@@ -70,7 +70,10 @@ def test_correct_add_blocks(random_matrix_blocks):
 
 @pytest.fixture
 def two_blocks_system():
-    """Returns a system with two blocks"""
+    """Returns a system with two blocks,
+    block 0 is a random 2by2 matrix,
+    block 1 is a junction '+-'.
+    """
     Sys = sigflow.System
     m = np.random.random((2, 2))
     blocka = sigflow.Matrix(m)
@@ -78,6 +81,21 @@ def two_blocks_system():
     sys = Sys([blocka, blockb])
     return sys
 
+
+@pytest.mark.parametrize("from_port,to_port",
+                         [[10, 0], [0, 10], [10, 10]])
+def test_add_edge_invalid_port(two_blocks_system,
+                               from_port, to_port):
+    with pytest.raises(ValueError):
+        sys = two_blocks_system
+        sys.add_edge(0, 1, from_port, to_port)
+
+
+@pytest.mark.parametrize("fake_block", [10, sigflow.Junction("+-")])
+def test_add_edge_invalid_node(two_blocks_system, fake_block):
+    sys = two_blocks_system
+    with pytest.raises(LookupError):
+        sys.add_edge(fake_block, 1)
 
 @pytest.mark.parametrize("method", ["id", "obj"])
 def test_change_edge(two_blocks_system, method):
@@ -153,6 +171,32 @@ def test_system():
     expected = res[0]
     np.testing.assert_allclose(actual, expected)
 
+def test_empty_system():
+    with pytest.raises(ValueError):
+        Sys = sigflow.System
+        sys = Sys()
+        sys(1)
+
+
+def test_mutated_system(two_blocks_system):
+    sys = two_blocks_system
+    sys.set_ninout(1, 1)
+    sys.add_edge("input", 0)
+    sys.add_edge(0, 1)
+    sys.add_edge(1, 1, 0, 1) # feedback
+    sys.add_edge(1, "output")
+    res = sys(10)
+    sys.blocks[0].matrix = np.diag([3,4,5])
+    assert sys(10) == [30 - res[0]]
+
+
+def test_no_output_system():
+    block = sigflow.Junction("+")
+    sys = sigflow.System(block, nin=1, nout=0)
+    sys.add_blocks(block)
+    sys.add_edge("input", 1)
+    assert sys(10) == None
+
 
 @pytest.mark.parametrize("data, expected",
                          [[1, [1,0]],
@@ -169,8 +213,16 @@ def test_feedback(data, expected):
         res.append(sys(data)[0])
     np.testing.assert_equal(res, expected)
 
-# def test_str(two_blocks_system):
-#     sys = two_blocks_system
+def test_invalid_system_input(two_blocks_system):
+    with pytest.raises(ValueError):
+        sys = two_blocks_system
+        sys(10)
+
+
+def test_str(two_blocks_system):
+    sys = two_blocks_system
+    print(sys)
+    assert True
 
 
 

@@ -74,17 +74,18 @@ class System(Block):
         ## block waiting to process in breadth first search method,
         ## may have duplicates
         queue = []
-        for from_port in range(self.ninput):
-            for target_id, to_port in self._succ["input"][from_port].items():
-                queue.append(target_id)    # add blocks to be run
-                pending[target_id][to_port] = self.inputs[from_port]
-
         ## reset to block input=list of zero if block mutated
         for ids, data in pending.items():
             if ids != "input" and ids != "output":
                 length = self.blocks[ids].ninput
                 if len(data) != length:
                     pending[ids] = [0.]*length
+        ## setting input to the system to blocks' inputs
+        for from_port in range(self.ninput):
+            for target_id, to_port in self._succ["input"][from_port].items():
+                queue.append(target_id)    # add blocks to be run
+                pending[target_id][to_port] = self.inputs[from_port]
+
 
         while len(queue):
             current_id = queue.pop(0)
@@ -113,7 +114,7 @@ class System(Block):
                         queue.append(target_id)    # add blocks to be run
                     pending[target_id][to_port] = tmp_output[from_port]
         if self.noutput > 0:
-            res = pending["output"]
+            res = pending["output"].copy()
         else:
             res = None
         return res

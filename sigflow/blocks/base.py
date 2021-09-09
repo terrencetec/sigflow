@@ -92,7 +92,7 @@ class Block:
         -------
             inputs
         """
-        self._inputs = inputs
+        self._inputs = np.atleast_1d(inputs)
 
     @property
     def output(self):
