@@ -91,10 +91,10 @@ def test_add_edge_invalid_port(two_blocks_system,
         sys.add_edge(0, 1, from_port, to_port)
 
 
-@pytest.mark.parametrize("fake_block", [10, sigflow.Junction("+-")])
+@pytest.mark.parametrize("fake_block", [10, "abc", sigflow.Junction("+-")])
 def test_add_edge_invalid_node(two_blocks_system, fake_block):
     sys = two_blocks_system
-    with pytest.raises(LookupError):
+    with pytest.raises((LookupError, TypeError)):
         sys.add_edge(fake_block, 1)
 
 @pytest.mark.parametrize("method", ["id", "obj"])
@@ -141,12 +141,12 @@ def test_remove_blocks(two_blocks_system, method):
     sys.add_edge(0, 1, 0, 1)
     sys.add_edge(0, 1, 1, 0)
     if method == "id":
-        sys.remove_by_id(0)
+        sys.remove_by_id(1)
     if method == "obj":
-        sys.remove_blocks(sys.blocks[0])
+        sys.remove_blocks(sys.blocks[1])
     actual = [sys.blocks, sys._succ]
-    expected = [{1: sys.blocks[1]},
-                {1: [{}]}]
+    expected = [{0: sys.blocks[0]},
+                {0: [{}, {}]}]
     np.testing.assert_equal(actual, expected)
 
 

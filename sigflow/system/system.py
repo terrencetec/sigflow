@@ -266,7 +266,7 @@ class System(Block):
             for key in dictionary:
                 for port in range(len(dictionary[key])):
                     if del_id in dictionary[key][port]:
-                        del dictionary[key][del_id]
+                        del dictionary[key][port][del_id]
 
     def _check_block_exists(self, block):
         """An internal method to check if block is in the system.
