@@ -35,3 +35,11 @@ Matrix
    :members:
    :undoc-members:
    :show-inheritance:
+
+System
+------
+
+.. autoclass:: sigflow.systems.System
+   :members:
+   :undoc-members:
+   :show-inheritance:
