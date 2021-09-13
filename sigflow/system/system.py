@@ -33,8 +33,10 @@ class System(Block):
         self._succ = dict(zip(ids, out_ports))
 
         self._set = False # indicate if starting block is set.
-        in_ports = [[0.]*block.ninput for block in blocks]
-        self._pending = dict(zip(ids, in_ports))
+        in_ports = [[{}]*block.ninput for block in blocks]
+        self._pred = dict(zip(ids, in_ports))
+        pending = [[0.]*block.ninput for block in blocks]
+        self._pending = dict(zip(ids, pending))
         self.set_ninout(nin, nout)
 
     def set_ninout(self, ninput, noutput=0):
@@ -54,7 +56,8 @@ class System(Block):
         if ninput > 0:
             self._succ = {**self._succ, **{"input": [{}]*ninput}}
         if noutput > 0:
-            self._pending = {**self._pending, **{"output": [{}]*noutput}}
+            self._pred = {**self._pred, **{"output": [{}]*noutput}}
+            self._pending = {**self._pending, **{"output": [None]*noutput}}
         self._set = True
 
     def _i2o(self):
@@ -141,9 +144,12 @@ class System(Block):
                      **dict(zip(blocks, new_ids))}
         self._succ = {**self._succ,
                       **dict(zip(new_ids, out_ports))}
-        in_ports = [[0.]*block.ninput for block in blocks]
+        in_ports = [[{}]*block.ninput for block in blocks]
+        self._pred = {**self._pred,
+                      **dict(zip(new_ids, in_ports))}
+        pending = [[0.]*block.ninput for block in blocks]
         self._pending = {**self._pending,
-                         **dict(zip(new_ids, in_ports))}
+                         **dict(zip(new_ids, pending))}
 
     def add_edge(self, edge_from, edge_to, from_port=0, to_port=0):
         """Add a directed connection from block out_edge to in_edge.
@@ -192,9 +198,19 @@ class System(Block):
             raise ValueError("invalid to port {} for id:{}"
                              "".format(from_port, to_id))
 
+        ## check if to_port is already connected to others
+        if len(self._pred[to_id][to_port]) > 0:
+            raise ValueError("node {} port {} already connected to another"
+                             " node {} port {}, please remove the connection"
+                             " before connecting to it."
+                             "".format(to_id, to_port, from_id, from_port))
+
         ## add edge
         target_dict = self._succ[from_id][from_port]
         self._succ[from_id][from_port] = {**target_dict, **{to_id: to_port}}
+
+        source_dict = self._pred[to_id][to_port]
+        self._pred[to_id][to_port] = {**source_dict, **{from_id: to_port}}
 
     def remove_edge(self, edge_from, edge_to, from_port=0, to_port=0):
         """Remove the given edge from the system.
@@ -223,11 +239,14 @@ class System(Block):
         else:
             to_id = edge_to
         del self._succ[from_id][from_port][to_id]
+        del self._pred[to_id][to_port][from_id]
 
     def clear_edges(self):
         """Clear all the connections in the system."""
         succ = [(i, [{}]*block.noutput) for i, block in self.blocks.items()]
         self._succ = dict(succ)
+        pred = [(i, [{}]*block.noutput) for i, block in self.blocks.items()]
+        self._pred = dict(pred)
 
     def remove_blocks(self, blocks):
         """Remove blocks from the system.
@@ -261,7 +280,7 @@ class System(Block):
         del self._ids[delete]
         del self._pending[del_id]
 
-        for dictionary in [self._succ]:
+        for dictionary in [self._succ, self._pred]:
             del dictionary[del_id]
             for key in dictionary:
                 for port in range(len(dictionary[key])):
@@ -339,3 +358,4 @@ class System(Block):
             raise ValueError("expected input size of {} in axis 0, "
                              "got {} instead".format(self.ninput, len(values)))
         self._inputs = values
+

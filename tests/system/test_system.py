@@ -219,6 +219,15 @@ def test_invalid_system_input(two_blocks_system):
         sys(10)
 
 
+def test_multiconnection_to_an_in_port():
+    with pytest.raises(ValueError):
+        block = sigflow.Junction("+-")
+        sys = sigflow.System(block, nin=2, nout=0)
+        sys.add_edge("input", block)
+        sys.add_edge("input", block, 1, 0)
+        sys.add_edge(block, block, 0, 1)
+
+
 def test_str(two_blocks_system):
     sys = two_blocks_system
     print(sys)
