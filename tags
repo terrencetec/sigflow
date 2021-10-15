@@ -1,0 +1,86 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	//
+Block	sigflow/blocks/base.py	/^class Block:$/;"	c
+Filter	sigflow/blocks/filter.py	/^class Filter(Block):$/;"	c
+Junction	sigflow/blocks/junction.py	/^class Junction(Matrix):$/;"	c
+Matrix	sigflow/blocks/matrix.py	/^class Matrix(Block):$/;"	c
+System	sigflow/system/system.py	/^class System(Block):$/;"	c
+__call__	sigflow/blocks/base.py	/^    def __call__(self, inputs):$/;"	m	class:Block
+__init__	sigflow/blocks/base.py	/^    def __init__(self, label=None):$/;"	m	class:Block
+__init__	sigflow/blocks/filter.py	/^    def __init__(self, tf, fs, method="bilinear", label=None):$/;"	m	class:Filter
+__init__	sigflow/blocks/junction.py	/^    def __init__(self, signs="++", label=None):$/;"	m	class:Junction
+__init__	sigflow/blocks/matrix.py	/^    def __init__(self, matrix=None, label=None):$/;"	m	class:Matrix
+__init__	sigflow/system/system.py	/^    def __init__(self, blocks=None, nin=0, nout=0):$/;"	m	class:System
+__str__	sigflow/system/system.py	/^    def __str__(self):$/;"	m	class:System
+_check_block_exists	sigflow/system/system.py	/^    def _check_block_exists(self, block):$/;"	m	class:System
+_i2o	sigflow/blocks/base.py	/^    def _i2o(self):$/;"	m	class:Block
+_i2o	sigflow/blocks/filter.py	/^    def _i2o(self):$/;"	m	class:Filter
+_i2o	sigflow/blocks/matrix.py	/^    def _i2o(self):$/;"	m	class:Matrix
+_i2o	sigflow/system/system.py	/^    def _i2o(self):$/;"	m	class:System
+_latch_input_register	sigflow/blocks/filter.py	/^    def _latch_input_register(self):$/;"	m	class:Filter
+_latch_output_register	sigflow/blocks/filter.py	/^    def _latch_output_register(self):$/;"	m	class:Filter
+_remove_block	sigflow/system/system.py	/^    def _remove_block(self, del_id):$/;"	m	class:System
+_reset_register	sigflow/blocks/filter.py	/^    def _reset_register(self):$/;"	m	class:Filter
+_set_coefs	sigflow/blocks/filter.py	/^    def _set_coefs(self):$/;"	m	class:Filter
+add_blocks	sigflow/system/system.py	/^    def add_blocks(self, blocks):$/;"	m	class:System
+add_edge	sigflow/system/system.py	/^    def add_edge(self, edge_from, edge_to, from_port=0, to_port=0):$/;"	m	class:System
+blocks	sigflow/system/system.py	/^    def blocks(self):$/;"	m	class:System
+blocks	sigflow/system/system.py	/^    def blocks(self, blocks):$/;"	m	class:System
+ch	sigflow/logger.py	/^ch = logging.StreamHandler()$/;"	v
+clear_edges	sigflow/system/system.py	/^    def clear_edges(self):$/;"	m	class:System
+connections	sigflow/system/system.py	/^    def connections(self):$/;"	m	class:System
+den_d	sigflow/blocks/filter.py	/^    def den_d(self):$/;"	m	class:Filter
+den_d	sigflow/blocks/filter.py	/^    def den_d(self, _den_d):$/;"	m	class:Filter
+formatter	sigflow/logger.py	/^formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)-8s: %(message)s', datefmt='%H:%/;"	v
+fs	sigflow/blocks/filter.py	/^    def fs(self):$/;"	m	class:Filter
+fs	sigflow/blocks/filter.py	/^    def fs(self, _fs):$/;"	m	class:Filter
+helloworld	sigflow/helloworld/helloworld.py	/^def helloworld():$/;"	f
+helloworlds	sigflow/helloworld/helloworld.py	/^def helloworlds(n):$/;"	f
+input_register	sigflow/blocks/filter.py	/^    def input_register(self):$/;"	m	class:Filter
+input_register	sigflow/blocks/filter.py	/^    def input_register(self, _input_register):$/;"	m	class:Filter
+inputs	sigflow/blocks/base.py	/^    def inputs(self):$/;"	m	class:Block
+inputs	sigflow/blocks/base.py	/^    def inputs(self, inputs):$/;"	m	class:Block
+inputs	sigflow/blocks/filter.py	/^    def inputs(self):$/;"	m	class:Filter
+inputs	sigflow/blocks/filter.py	/^    def inputs(self, _inputs):$/;"	m	class:Filter
+inputs	sigflow/system/system.py	/^    def inputs(self):$/;"	m	class:System
+inputs	sigflow/system/system.py	/^    def inputs(self, values):$/;"	m	class:System
+logger	sigflow/logger.py	/^logger = logging.getLogger("sigflow")$/;"	v
+main	sigflow/clitools/print_hello_worlds.py	/^def main(args=None):$/;"	f
+matrix	sigflow/blocks/matrix.py	/^    def matrix(self):$/;"	m	class:Matrix
+matrix	sigflow/blocks/matrix.py	/^    def matrix(self, mat):$/;"	m	class:Matrix
+method	sigflow/blocks/filter.py	/^    def method(self):$/;"	m	class:Filter
+method	sigflow/blocks/filter.py	/^    def method(self, _method):$/;"	m	class:Filter
+ninput	sigflow/blocks/base.py	/^    def ninput(self):$/;"	m	class:Block
+ninput	sigflow/blocks/base.py	/^    def ninput(self, ninput):$/;"	m	class:Block
+ninput	sigflow/blocks/matrix.py	/^    def ninput(self):$/;"	m	class:Matrix
+ninput	sigflow/blocks/matrix.py	/^    def ninput(self, ninput):$/;"	m	class:Matrix
+noutput	sigflow/blocks/base.py	/^    def noutput(self):$/;"	m	class:Block
+noutput	sigflow/blocks/base.py	/^    def noutput(self, noutput):$/;"	m	class:Block
+noutput	sigflow/blocks/matrix.py	/^    def noutput(self):$/;"	m	class:Matrix
+noutput	sigflow/blocks/matrix.py	/^    def noutput(self, noutput):$/;"	m	class:Matrix
+np	sigflow/blocks/base.py	/^import numpy as np$/;"	I
+np	sigflow/blocks/filter.py	/^import numpy as np$/;"	I
+np	sigflow/blocks/junction.py	/^import numpy as np$/;"	I
+np	sigflow/blocks/matrix.py	/^import numpy as np$/;"	I
+np	sigflow/core/utils.py	/^import numpy as np$/;"	I
+np	sigflow/system/system.py	/^import numpy as np$/;"	I
+num_d	sigflow/blocks/filter.py	/^    def num_d(self):$/;"	m	class:Filter
+num_d	sigflow/blocks/filter.py	/^    def num_d(self, _num_d):$/;"	m	class:Filter
+output	sigflow/blocks/base.py	/^    def output(self):$/;"	m	class:Block
+output_register	sigflow/blocks/filter.py	/^    def output_register(self):$/;"	m	class:Filter
+output_register	sigflow/blocks/filter.py	/^    def output_register(self, _output_register):$/;"	m	class:Filter
+parser	sigflow/clitools/print_hello_worlds.py	/^def parser():$/;"	f
+remove_blocks	sigflow/system/system.py	/^    def remove_blocks(self, blocks):$/;"	m	class:System
+remove_by_id	sigflow/system/system.py	/^    def remove_by_id(self, block_id):$/;"	m	class:System
+remove_edge	sigflow/system/system.py	/^    def remove_edge(self, edge_from, edge_to, from_port=0, to_port=0):$/;"	m	class:System
+set_ninout	sigflow/system/system.py	/^    def set_ninout(self, ninput, noutput=0):$/;"	m	class:System
+signs	sigflow/blocks/junction.py	/^    def signs(self):$/;"	m	class:Junction
+signs	sigflow/blocks/junction.py	/^    def signs(self, _signs):$/;"	m	class:Junction
+tf	sigflow/blocks/filter.py	/^    def tf(self):$/;"	m	class:Filter
+tf	sigflow/blocks/filter.py	/^    def tf(self, _tf):$/;"	m	class:Filter
+to_array	sigflow/core/utils.py	/^def to_array(value, types=None):$/;"	f

@@ -1,3 +1,5 @@
+import numpy as np
+
 """Elements in a block diagram
 """
 class Block:
@@ -7,7 +9,7 @@ class Block:
     ----------
     label : str or None
         Label for this block.
-    input : float or array
+    inputs : float or array
         The input of this block.
     output : float or array
         The output of this block, calculated by self._i2o()
@@ -20,7 +22,7 @@ class Block:
     ----
     Block diagram representation:
 
-    input --> [block] --> output
+    inputs --> [block] --> output
 
     Call this block to use:
 
@@ -38,11 +40,11 @@ class Block:
             Defaults to None
         """
         self.label = label
-        self.input = 0.
+        self.inputs = 0.
         self.ninput = 1
         self.noutput = 1
 
-    def __call__(self, input):
+    def __call__(self, inputs):
         """Call method
 
         Parameters
@@ -54,7 +56,7 @@ class Block:
         -------
         self.output
         """
-        self.input = input
+        self.inputs = inputs
         return self.output
 
     def _i2o(self):
@@ -70,27 +72,27 @@ class Block:
         ----
         This method should be redefined to suit other purposes.
         """
-        return self.input
+        return self.inputs
 
     @property
-    def input(self):
+    def inputs(self):
         """Input of the block."""
-        return self._input
+        return self._inputs
 
-    @input.setter
-    def input(self, input):
+    @inputs.setter
+    def inputs(self, inputs):
         """input setter
 
         Parameters
         ----------
-        input :
+        inputs :
             Input to the block
 
         Returns
         -------
-            input
+            inputs
         """
-        self._input = input
+        self._inputs = np.atleast_1d(inputs)
 
     @property
     def output(self):
