@@ -9,11 +9,10 @@ Block
    :undoc-members:
    :show-inheritance:
 
+LTI Systems
+-----------
 
-Filter
-------
-
-.. autoclass:: sigflow.blocks.Filter
+.. autoclass:: sigflow.blocks.LTI
    :members:
    :undoc-members:
    :show-inheritance:
