@@ -14,3 +14,4 @@ omit =
     sigflow/logger.py
     sigflow/helloworld*
     sigflow/clitools/print_hello_worlds.py
+    sigflow/blocks/filter.py
