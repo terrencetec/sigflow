@@ -32,4 +32,7 @@ def test_lti():
     np.random.seed(123)
     u = np.random.normal(0, 1, len(t))
     sigflow_tf = sigflow.blocks.LTI(tf=tf, dt=dt)
+    yd = np.zeros_like(u)
+    for i in range(len(u)):
+        yd[i] = sigflow_tf(u[i])
     #TODO How to check if the output is expected??
