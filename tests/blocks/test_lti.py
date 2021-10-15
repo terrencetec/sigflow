@@ -35,4 +35,7 @@ def test_lti():
     yd = np.zeros_like(u)
     for i in range(len(u)):
         yd[i] = sigflow_tf(u[i])
+    for i in range(len(u)):
+        sigflow_tf.input = u[i]
+        yd[i] = sigflow_tf.output
     #TODO How to check if the output is expected??
